@@ -16,28 +16,33 @@ const server = Bun.serve({
 			return new Response(file(filePath));
 		}
 
-		// Handle multiple JAR file uploads
-		if (url.pathname === "/api/upload-jars" && req.method === "POST") {
+		if (url.pathname === "/api/upload-jar" && req.method === "POST") {
 			const formData = await req.formData();
-			const jarFiles = formData.getAll("jarFiles") as Blob[];
-			if (!jarFiles.length) return new Response("No files", { status: 400 });
+			const jarFile = formData.get("jarFile") as Blob;
+			if (!jarFile) return new Response("No file", { status: 400 });
 
 			const tempDir = `./temp/${Date.now()}`;
 			await Bun.write(`${tempDir}/.temp`, "");
+			const jarPath = `${tempDir}/uploaded.jar`;
 
-			console.log();
+			try {
+				await Bun.write(jarPath, jarFile);
+				const result = await processJarFile(jarPath);
 
-			const results = await Promise.all(
-				jarFiles.map(async (jarFile, index) => {
-					const jarPath = `${tempDir}/uploaded_${index}.jar`;
-					await Bun.write(jarPath, jarFile);
-					return processJarFile(jarPath);
-				}),
-			);
-
-			return new Response(JSON.stringify(results), {
-				headers: { "Content-Type": "application/json" },
-			});
+				return new Response(JSON.stringify(result), {
+					headers: { "Content-Type": "application/json" },
+				});
+			} catch (error) {
+				console.error("File processing failed:", error);
+				return new Response("File processing failed", { status: 500 });
+			} finally {
+				try {
+					Bun.spawn(["del", "/f", "/q", jarPath]);
+					Bun.spawn(["rmdir", "/s", "/q", tempDir]);
+				} catch (cleanupError) {
+					console.error("Cleanup failed:", cleanupError);
+				}
+			}
 		}
 
 		// Serve other static assets
@@ -49,7 +54,7 @@ const server = Bun.serve({
 
 		return new Response("Not Found", { status: 404 });
 	},
-	error(error) {
+	error() {
 		return new Response("Internal Server Error", { status: 500 });
 	},
 });
