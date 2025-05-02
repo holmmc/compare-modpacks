@@ -7,7 +7,9 @@
 		"dev": "vite",
 		"build": "tsc && vite build",
 		"serve": "bun run server/index.ts",
-		"format": "biome check --write src server"
+		"format": "biome check --write src server",
+		"docker:build": "docker build -t compare-modpacks .",
+		"docker:run": "docker run -p 3000:3000 compare-modpacks"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
