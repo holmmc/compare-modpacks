@@ -22,18 +22,18 @@ const server = Bun.serve({
 			const jarFiles = formData.getAll("jarFiles") as Blob[];
 			if (!jarFiles.length) return new Response("No files", { status: 400 });
 
-			const tempDir = `./out/${Date.now()}`;
+			const tempDir = `./temp/${Date.now()}`;
 			await Bun.write(`${tempDir}/.temp`, "");
+
+			console.log();
 
 			const results = await Promise.all(
 				jarFiles.map(async (jarFile, index) => {
 					const jarPath = `${tempDir}/uploaded_${index}.jar`;
 					await Bun.write(jarPath, jarFile);
-					return processJarFile(jarPath).catch((e) => ({ error: e.message }));
+					return processJarFile(jarPath);
 				}),
 			);
-
-			await Bun.spawn({ cmd: ["rm", "-rf", tempDir] }).exited;
 
 			return new Response(JSON.stringify(results), {
 				headers: { "Content-Type": "application/json" },

@@ -5,11 +5,11 @@ const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("No app");
 
 app.innerHTML = `
-  <div class="upload-container">
-    <h1>Modpack Comparator</h1>
-    <input type="file" id="jarUpload" accept=".jar" multiple />
-    <button id="uploadButton">Upload JARs</button>
-    <div id="results"></div>
+  <div class="max-w-3xl w-full p-6 rounded-xl bg-slate-800 shadow-lg">
+    <h1 class="text-3xl font-bold mb-6 text-center text-indigo-300">Modpack Comparator</h1>
+    <input type="file" id="jarUpload" accept=".jar" multiple class="block w-full p-3 mb-4 text-sm text-gray-300 border border-gray-600 rounded-lg cursor-pointer bg-gray-700 focus:outline-none" />
+    <button id="uploadButton" class="w-full py-3 px-4 bg-indigo-600 text-white font-medium rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition-colors">Upload JARs</button>
+    <div id="results" class="mt-8 space-y-4"></div>
   </div>
 `;
 
@@ -61,20 +61,20 @@ function displayResults(results: ModMetadata[]) {
 
 	for (const mod of results) {
 		const modDiv = document.createElement("div");
-		modDiv.className = "mod-result";
+		modDiv.className = "p-4 rounded-lg bg-slate-700 shadow-md";
 
 		modDiv.innerHTML = `
-            <div class="mod-header">
-                ${mod.icon ? `<img src="${mod.icon}" alt="${mod.name} icon" class="mod-icon">` : ""}
-                <h3>${mod.name} v${mod.version}</h3>
+            <div class="flex items-center gap-3 mb-2">
+                ${mod.icon ? `<img src="${mod.icon}" alt="${mod.name} icon" class="w-10 h-10 rounded">` : ""}
+                <div>
+                    <h3 class="text-xl font-semibold text-indigo-200">${mod.name}</h3>
+                    <div class="flex gap-2 text-sm text-gray-400">
+                        <span class="px-2 py-0.5 bg-indigo-900 rounded-full">v${mod.version}</span>
+                        <span>by ${mod.authors.join(", ")}</span>
+                    </div>
+                </div>
             </div>
-            <p>${mod.description}</p>
-            <div class="mod-details">
-                <p><strong>ID:</strong> ${mod.id}</p>
-                <p><strong>Authors:</strong> ${mod.authors.join(", ")}</p>
-                <p><strong>License:</strong> ${mod.license}</p>
-                <p><strong>Minecraft:</strong> ${mod.depends.minecraft}</p>
-            </div>
+            <p class="text-gray-300">${mod.description}</p>
         `;
 
 		resultsDiv.appendChild(modDiv);
