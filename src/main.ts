@@ -26,6 +26,7 @@ app.innerHTML = /*html*/ `
 
 			<div>
 				<h2 class="text-xl font-semibold mb-4 text-center text-white/80">Unique to First Pack</h2>
+				<input type="input" id="compared_count" disabled class="block w-full p-3 mb-4 text-sm text-white/80 border border-white/20 rounded-lg bg-white/5 backdrop-blur-md focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all" />
 				<div id="comparison" class="mt-8 space-y-4"></div>
 			</div>
 		</div>
@@ -128,10 +129,14 @@ setupUploader("2");
 // Add this function to compare mods
 function compareMods(mods1: ModMetadata[], mods2: ModMetadata[]) {
 	const comparisonDiv = document.getElementById("comparison") as HTMLDivElement;
+	const countInput = document.getElementById(
+		"compared_count",
+	) as HTMLInputElement;
 	comparisonDiv.innerHTML = "";
 
 	const mods2Ids = new Set(mods2.map((mod) => mod.id));
 	const uniqueMods = mods1.filter((mod) => !mods2Ids.has(mod.id));
 
+	countInput.value = `${uniqueMods.length} unique mods`;
 	displayResults(uniqueMods, comparisonDiv);
 }
