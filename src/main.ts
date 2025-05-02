@@ -12,14 +12,12 @@ app.innerHTML = `
       <div>
         <h2 class="text-xl font-semibold mb-4 text-center">First Modpack</h2>
         <input type="file" id="jarUpload1" accept=".jar" multiple class="block w-full p-3 mb-4 text-sm text-gray-300 border border-gray-600 rounded-lg cursor-pointer bg-gray-700 focus:outline-none" />
-        <button id="uploadButton1" class="w-full py-3 px-4 bg-indigo-600 text-white font-medium rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition-colors">Upload First Pack</button>
         <div id="results1" class="mt-8 space-y-4"></div>
       </div>
       
       <div>
         <h2 class="text-xl font-semibold mb-4 text-center">Second Modpack</h2>
         <input type="file" id="jarUpload2" accept=".jar" multiple class="block w-full p-3 mb-4 text-sm text-gray-300 border border-gray-600 rounded-lg cursor-pointer bg-gray-700 focus:outline-none" />
-        <button id="uploadButton2" class="w-full py-3 px-4 bg-indigo-600 text-white font-medium rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75 transition-colors">Upload Second Pack</button>
         <div id="results2" class="mt-8 space-y-4"></div>
       </div>
 
@@ -41,76 +39,51 @@ const setupUploader = (id: string) => {
 	const jarUpload = document.getElementById(
 		`jarUpload${id}`,
 	) as HTMLInputElement;
-	const uploadButton = document.getElementById(
-		`uploadButton${id}`,
-	) as HTMLButtonElement;
 	const resultsDiv = document.getElementById(`results${id}`) as HTMLDivElement;
 
-	uploadButton.addEventListener("click", async () => {
-		if (!jarUpload.files || jarUpload.files.length === 0) {
-			alert("Please select at least one JAR file");
-			return;
+	jarUpload.addEventListener("change", async () => {
+		if (!jarUpload.files || jarUpload.files.length === 0) return;
+
+		// Create progress elements
+		const progressContainer = document.createElement("div");
+		progressContainer.className = "mt-4 space-y-2";
+		resultsDiv.innerHTML = "";
+		resultsDiv.appendChild(progressContainer);
+
+		const results = [];
+		const files = Array.from(jarUpload.files);
+
+		// Process files sequentially
+		for (let i = 0; i < files.length; i++) {
+			const file = files[i];
+			const progress = document.createElement("div");
+			progress.className = "text-sm text-gray-400";
+			progress.textContent = `Uploading ${file.name} (${i + 1}/${files.length})`;
+			progressContainer.appendChild(progress);
+
+			const formData = new FormData();
+			formData.append("jarFile", file);
+
+			try {
+				const response = await fetch("/api/upload-jar", {
+					method: "POST",
+					body: formData,
+					signal: AbortSignal.timeout(120000),
+				});
+
+				if (!response.ok) throw new Error(`Server returned ${response.status}`);
+				results.push(await response.json());
+			} catch (error) {
+				console.error(`Error uploading ${file.name}:`, error);
+				progress.textContent += ` - Failed: ${error instanceof Error ? error.message : "Unknown error"}`;
+				progress.className += " text-red-400";
+			}
 		}
 
-		try {
-			uploadButton.disabled = true;
-			uploadButton.textContent = "Processing...";
-
-			// Create progress elements
-			const progressContainer = document.createElement("div");
-			progressContainer.className = "mt-4 space-y-2";
-			resultsDiv.appendChild(progressContainer); // Changed from container to resultsDiv
-
-			const results = [];
-			const files = Array.from(jarUpload.files);
-
-			// Process files sequentially
-			for (let i = 0; i < files.length; i++) {
-				const file = files[i];
-				const progress = document.createElement("div");
-				progress.className = "text-sm text-gray-400";
-				progress.textContent = `Uploading ${file.name} (${i + 1}/${files.length})`;
-				progressContainer.appendChild(progress);
-
-				const formData = new FormData();
-				formData.append("jarFile", file);
-
-				try {
-					const response = await fetch("/api/upload-jar", {
-						method: "POST",
-						body: formData,
-						signal: AbortSignal.timeout(120000), // 2 minutes per file
-					});
-
-					if (!response.ok)
-						throw new Error(`Server returned ${response.status}`);
-					results.push(await response.json());
-				} catch (error) {
-					console.error(`Error uploading ${file.name}:`, error);
-					progress.textContent += ` - Failed: ${error instanceof Error ? error.message : "Unknown error"}`;
-					progress.className += " text-red-400";
-				}
-			}
-
-			displayResults(results, resultsDiv);
-
-			// Store results for comparison
-			// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-			(state as any)[`mods${id}`] = results;
-
-			// Compare if both packs are loaded
-			if (state.mods1 && state.mods2) {
-				compareMods(state.mods1, state.mods2);
-			}
-		} catch (error) {
-			console.error("Upload failed:", error);
-			alert(
-				`Upload failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-			);
-		} finally {
-			uploadButton.disabled = false;
-			uploadButton.textContent = `Upload Pack ${id}`;
-		}
+		displayResults(results, resultsDiv);
+		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		(state as any)[`mods${id}`] = results;
+		if (state.mods1 && state.mods2) compareMods(state.mods1, state.mods2);
 	});
 };
 

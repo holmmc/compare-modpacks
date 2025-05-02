@@ -1,22 +1,23 @@
 {
-  "name": "compare-modpacks",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "@tailwindcss/vite": "^4.1.5",
-    "@types/bun": "latest",
-    "tailwindcss": "^4.1.5",
-    "typescript": "~5.7.2",
-    "vite": "^6.3.1"
-  },
-  "dependencies": {
-    "@holmlibs/unzip": "^1.0.0"
-  }
+	"name": "compare-modpacks",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"serve": "bun run server/index.ts",
+		"format": "biome check --write src server"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@tailwindcss/vite": "^4.1.5",
+		"@types/bun": "latest",
+		"tailwindcss": "^4.1.5",
+		"typescript": "~5.7.2",
+		"vite": "^6.3.1"
+	},
+	"dependencies": {
+		"@holmlibs/unzip": "^1.0.0"
+	}
 }

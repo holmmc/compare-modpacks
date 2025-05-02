@@ -1,30 +1,11 @@
-import { rm } from "node:fs/promises";
-import { processJarFile } from "./api/jarProcessor";
+import { handleJarUpload } from "./api/uploadHandler";
 
 const server = Bun.serve({
 	port: process.env.PORT || 3000,
 	routes: {
 		"/": async () => new Response(Bun.file("./dist/index.html")),
 		"/api/upload-jar": {
-			POST: async (req) => {
-				const jarFile = (await req.formData()).get("jarFile") as Blob;
-				if (!jarFile) return new Response("No file", { status: 400 });
-
-				const tempDir = `./temp/${Date.now()}`;
-				const jarPath = `${tempDir}/uploaded.jar`;
-
-				try {
-					await Bun.write(jarPath, jarFile);
-					return new Response(JSON.stringify(await processJarFile(jarPath)), {
-						headers: { "Content-Type": "application/json" },
-					});
-				} catch (error) {
-					console.error("File processing failed:", error);
-					return new Response("File processing failed", { status: 500 });
-				} finally {
-					rm(tempDir, { recursive: true, force: true });
-				}
-			},
+			POST: handleJarUpload,
 		},
 	},
 	async fetch(req) {
@@ -39,4 +20,4 @@ const server = Bun.serve({
 	},
 });
 
-console.log(`Server running at http://localhost:${server.port}`);
+console.log(`\x1b[32mServer running at http://localhost:${server.port}\x1b[0m`);

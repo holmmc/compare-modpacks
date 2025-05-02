@@ -1,6 +1,26 @@
+import { rm } from "node:fs/promises";
 import { createZipReader } from "@holmlibs/unzip";
 
-export async function processJarFile(jarPath: string) {
+export async function handleJarUpload(req: Request): Promise<Response> {
+	const jarFile = (await req.formData()).get("jarFile") as Blob;
+	if (!jarFile) return new Response("No file", { status: 400 });
+
+	const tempDir = `./temp/${Date.now()}`;
+	const jarPath = `${tempDir}/uploaded.jar`;
+
+	try {
+		await Bun.write(jarPath, jarFile);
+		return new Response(JSON.stringify(await processJarFile(jarPath)), {
+			headers: { "Content-Type": "application/json" },
+		});
+	} catch (error) {
+		return new Response("File processing failed", { status: 500 });
+	} finally {
+		rm(tempDir, { recursive: true, force: true });
+	}
+}
+
+async function processJarFile(jarPath: string) {
 	try {
 		const reader = createZipReader(jarPath);
 		const fileRaw = await reader.getEntry("fabric.mod.json")?.getText();
@@ -31,11 +51,3 @@ export async function processJarFile(jarPath: string) {
 		return undefined;
 	}
 }
-
-// (async () => {
-// 	const data = await extractModMetadata(
-// 		"E:/Users/Nicat/AppData/Roaming/ModrinthApp/profiles/TEST/mods/AltOriginGui-fabric-1.20.1-1.1.1.jar",
-// 	);
-
-// 	console.log(data);
-// })();
