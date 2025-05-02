@@ -7,8 +7,7 @@ const server = Bun.serve({
 		"/": async () => new Response(Bun.file("./dist/index.html")),
 		"/api/upload-jar": {
 			POST: async (req) => {
-				const formData = await req.formData();
-				const jarFile = formData.get("jarFile") as Blob;
+				const jarFile = (await req.formData()).get("jarFile") as Blob;
 				if (!jarFile) return new Response("No file", { status: 400 });
 
 				const tempDir = `./temp/${Date.now()}`;
@@ -16,9 +15,7 @@ const server = Bun.serve({
 
 				try {
 					await Bun.write(jarPath, jarFile);
-					const result = await processJarFile(jarPath);
-
-					return new Response(JSON.stringify(result), {
+					return new Response(JSON.stringify(await processJarFile(jarPath)), {
 						headers: { "Content-Type": "application/json" },
 					});
 				} catch (error) {
@@ -32,15 +29,10 @@ const server = Bun.serve({
 	},
 	async fetch(req) {
 		const url = new URL(req.url);
-
-		// Serve other static assets
 		const assetPath = `./dist${url.pathname}`;
-		const assetExists = await Bun.file(assetPath).exists();
-		if (assetExists) {
-			return new Response(Bun.file(assetPath));
-		}
-
-		return new Response("Not Found", { status: 404 });
+		return (await Bun.file(assetPath).exists())
+			? new Response(Bun.file(assetPath))
+			: new Response("Not Found", { status: 404 });
 	},
 	error() {
 		return new Response("Internal Server Error", { status: 500 });
