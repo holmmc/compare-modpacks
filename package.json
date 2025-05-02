@@ -11,6 +11,10 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "typescript": "~5.7.2",
-    "vite": "^6.3.1"
+    "vite": "^6.3.1",
+    "@types/bun": "latest"
+  },
+  "dependencies": {
+    "@holmlibs/unzip": "^1.0.0"
   }
 }
