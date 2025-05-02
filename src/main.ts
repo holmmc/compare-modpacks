@@ -1,3 +1,4 @@
+import { loadAsync } from "jszip";
 import "./style.css";
 import type { ModMetadata } from "./type";
 
@@ -55,25 +56,34 @@ const setupUploader = (id: string) => {
 		progress.className = "text-sm text-gray-400 mt-4";
 		resultsDiv.appendChild(progress);
 
-		// Process files sequentially
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i];
-			progress.textContent = `Uploading (${i + 1}/${files.length})`;
-
-			const formData = new FormData();
-			formData.append("jarFile", file);
+			progress.textContent = `Processing (${i + 1}/${files.length})`;
 
 			try {
-				const response = await fetch("/api/upload-jar", {
-					method: "POST",
-					body: formData,
-					signal: AbortSignal.timeout(120000),
-				});
+				const zipContent = await loadAsync(file);
+				const fabricJsonFile = zipContent.file("fabric.mod.json");
+				if (!fabricJsonFile) throw new Error("No fabric.mod.json found");
+				const fabricJson = await fabricJsonFile.async("text");
+				const modData = JSON.parse(fabricJson) as ModMetadata;
 
-				if (!response.ok) throw new Error(`Server returned ${response.status}`);
-				results.push(await response.json());
+				// Handle icon if it exists in the mod
+				if (modData.icon) {
+					const iconFile = zipContent.file(modData.icon);
+					if (iconFile) {
+						const iconData = await iconFile.async("uint8array");
+						const mimeType = modData.icon.endsWith(".png")
+							? "image/png"
+							: modData.icon.endsWith(".jpg")
+								? "image/jpeg"
+								: "image/webp";
+						const base64 = btoa(String.fromCharCode(...iconData));
+						modData.icon = `data:${mimeType};base64,${base64}`;
+					}
+				}
+				results.push(modData);
 			} catch (error) {
-				console.error(`Error uploading ${file.name}:`, error);
+				console.error(`Error processing ${file.name}:`, error);
 			}
 		}
 
