@@ -97,7 +97,7 @@ const displayResults = (results: ModMetadata[], container: HTMLDivElement) => {
 	for (const mod of results) {
 		const modDiv = document.createElement("div");
 		modDiv.className =
-			"card p-4 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/15 hover:shadow-white/5 hover:-translate-y-0.5 transition-all";
+			"card p-4 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/15 hover:shadow-white/5 transition-all";
 
 		modDiv.innerHTML = `
       <div class="flex items-center gap-3 mb-2">
