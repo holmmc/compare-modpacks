@@ -48,22 +48,17 @@ const setupUploader = (id: string) => {
 	jarUpload.addEventListener("change", async () => {
 		if (!jarUpload.files || jarUpload.files.length === 0) return;
 
-		// Create progress elements
-		const progressContainer = document.createElement("div");
-		progressContainer.className = "mt-4 space-y-2";
 		resultsDiv.innerHTML = "";
-		resultsDiv.appendChild(progressContainer);
-
 		const results = [];
 		const files = Array.from(jarUpload.files);
+		const progress = document.createElement("div");
+		progress.className = "text-sm text-gray-400 mt-4";
+		resultsDiv.appendChild(progress);
 
 		// Process files sequentially
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i];
-			const progress = document.createElement("div");
-			progress.className = "text-sm text-gray-400";
-			progress.textContent = `Uploading ${file.name} (${i + 1}/${files.length})`;
-			progressContainer.appendChild(progress);
+			progress.textContent = `Uploading (${i + 1}/${files.length})`;
 
 			const formData = new FormData();
 			formData.append("jarFile", file);
@@ -79,8 +74,6 @@ const setupUploader = (id: string) => {
 				results.push(await response.json());
 			} catch (error) {
 				console.error(`Error uploading ${file.name}:`, error);
-				progress.textContent += ` - Failed: ${error instanceof Error ? error.message : "Unknown error"}`;
-				progress.className += " text-red-400";
 			}
 		}
 
