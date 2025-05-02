@@ -4,29 +4,32 @@ import type { ModMetadata } from "./type";
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("No app");
 
-app.innerHTML = `
-  <div class="max-w-5xl w-full p-6 rounded-xl bg-slate-800 shadow-lg">
-    <h1 class="text-3xl font-bold mb-6 text-center text-indigo-300">Modpack Comparator</h1>
-    
-    <div class="grid grid-cols-3 gap-4">
-      <div>
-        <h2 class="text-xl font-semibold mb-4 text-center">First Modpack</h2>
-        <input type="file" id="jarUpload1" accept=".jar" multiple class="block w-full p-3 mb-4 text-sm text-gray-300 border border-gray-600 rounded-lg cursor-pointer bg-gray-700 focus:outline-none" />
-        <div id="results1" class="mt-8 space-y-4"></div>
-      </div>
-      
-      <div>
-        <h2 class="text-xl font-semibold mb-4 text-center">Second Modpack</h2>
-        <input type="file" id="jarUpload2" accept=".jar" multiple class="block w-full p-3 mb-4 text-sm text-gray-300 border border-gray-600 rounded-lg cursor-pointer bg-gray-700 focus:outline-none" />
-        <div id="results2" class="mt-8 space-y-4"></div>
-      </div>
+app.innerHTML = /*html*/ `
+	<div class="fixed flex top-0 left-0 flex-col z-[40] w-full !max-w-full items-center justify-center bg-transparent transition-bg overflow-hidden h-[60vh] -top-16 pointer-events-none opacity-[.35] dark:opacity-50">
+		<div class="jumbo absolute opacity-60 -animate"></div>
+	</div>
+	<div class="max-w-5xl w-full p-6 rounded-xl bg-white/10 backdrop-blur-xl shadow-2xl border border-white/20 transition-all">
+		<h1 class="text-3xl font-bold mb-6 text-center text-white/90 drop-shadow-md">Modpack Comparator</h1>
 
-      <div>
-        <h2 class="text-xl font-semibold mb-4 text-center">Unique to First Pack</h2>
-        <div id="comparison" class="mt-8 space-y-4"></div>
-      </div>
-    </div>
-  </div>
+		<div class="grid grid-cols-3 gap-4">
+			<div>
+				<h2 class="text-xl font-semibold mb-4 text-center text-white/80">First Modpack</h2>
+				<input type="file" id="jarUpload1" accept=".jar" multiple class="block w-full p-3 mb-4 text-sm text-white/80 border border-white/20 rounded-lg cursor-pointer bg-white/5 backdrop-blur-md hover:bg-white/10 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all" />
+				<div id="results1" class="mt-8 space-y-4"></div>
+			</div>
+
+			<div>
+				<h2 class="text-xl font-semibold mb-4 text-center text-white/80">Second Modpack</h2>
+				<input type="file" id="jarUpload2" accept=".jar" multiple class="block w-full p-3 mb-4 text-sm text-white/80 border border-white/20 rounded-lg cursor-pointer bg-white/5 backdrop-blur-md hover:bg-white/10 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all" />
+				<div id="results2" class="mt-8 space-y-4"></div>
+			</div>
+
+			<div>
+				<h2 class="text-xl font-semibold mb-4 text-center text-white/80">Unique to First Pack</h2>
+				<div id="comparison" class="mt-8 space-y-4"></div>
+			</div>
+		</div>
+	</div>
 `;
 
 const state = {
@@ -92,26 +95,27 @@ const displayResults = (results: ModMetadata[], container: HTMLDivElement) => {
 
 	for (const mod of results) {
 		const modDiv = document.createElement("div");
-		modDiv.className = "p-4 rounded-lg bg-slate-700 shadow-md";
+		modDiv.className =
+			"card p-4 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/15 hover:shadow-white/5 hover:-translate-y-0.5 transition-all";
 
 		modDiv.innerHTML = `
       <div class="flex items-center gap-3 mb-2">
-        ${mod.icon?.startsWith("data") ? `<img src="${mod.icon}" alt="${mod.name} icon" class="w-10 h-10 rounded">` : ""}
+        ${mod.icon?.startsWith("data") ? `<img src="${mod.icon}" alt="${mod.name} icon" class="w-10 h-10 rounded shadow-md">` : ""}
         <div class="min-w-0">
-          <h3 class="text-xl font-semibold text-indigo-200 truncate">
+          <h3 class="text-xl font-semibold text-white/90 drop-shadow-sm truncate">
             ${
 							mod.contact?.homepage
-								? `<a href="${mod.contact.homepage}" target="_blank" rel="noopener noreferrer">${mod.name}</a>`
+								? `<a href="${mod.contact.homepage}" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">${mod.name}</a>`
 								: mod.name
 						}
           </h3>
-          <div class="flex gap-2 text-sm text-gray-400 truncate">
-            <span class="px-2 py-0.5 bg-indigo-900 rounded-full">v${mod.version}</span>
+          <div class="flex gap-2 text-sm text-white/70 truncate">
+            <span class="px-2 py-0.5 bg-white/10 backdrop-blur-sm rounded-full shadow-inner">${mod.version}</span>
             <span class="truncate">by ${mod.authors[0]}</span>
           </div>
         </div>
       </div>
-      <p class="text-gray-300">${mod.description}</p>
+      <p class="text-white/80">${mod.description}</p>
     `;
 
 		container.appendChild(modDiv);
