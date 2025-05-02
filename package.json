@@ -7,7 +7,7 @@
 		"dev": "vite",
 		"build": "tsc && vite build",
 		"preview": "vite preview",
-		"format": "biome check --write src server"
+		"format": "biome check --write src"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",

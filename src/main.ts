@@ -2,44 +2,11 @@ import { loadAsync } from "jszip";
 import "./style.css";
 import type { ModMetadata } from "./type";
 
-const app = document.querySelector<HTMLDivElement>("#app");
-if (!app) throw new Error("No app");
-
-app.innerHTML = /*html*/ `
-	<div class="fixed flex top-0 left-0 flex-col z-[40] w-full !max-w-full items-center justify-center bg-transparent transition-bg overflow-hidden h-[60vh] -top-16 pointer-events-none opacity-[.35] dark:opacity-50">
-		<div class="jumbo absolute opacity-60 -animate"></div>
-	</div>
-	<div class="max-w-5xl w-full p-6 rounded-xl bg-white/10 backdrop-blur-xl shadow-2xl border border-white/20 transition-all">
-		<h1 class="text-3xl font-bold mb-6 text-center text-white/90 drop-shadow-md">Modpack Comparator</h1>
-
-		<div class="grid grid-cols-3 gap-4">
-			<div>
-				<h2 class="text-xl font-semibold mb-4 text-center text-white/80">First Modpack</h2>
-				<input type="file" id="jarUpload1" accept=".jar" multiple class="block w-full p-3 mb-4 text-sm text-white/80 border border-white/20 rounded-lg cursor-pointer bg-white/5 backdrop-blur-md hover:bg-white/10 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all" />
-				<div id="results1" class="mt-8 space-y-4"></div>
-			</div>
-
-			<div>
-				<h2 class="text-xl font-semibold mb-4 text-center text-white/80">Second Modpack</h2>
-				<input type="file" id="jarUpload2" accept=".jar" multiple class="block w-full p-3 mb-4 text-sm text-white/80 border border-white/20 rounded-lg cursor-pointer bg-white/5 backdrop-blur-md hover:bg-white/10 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all" />
-				<div id="results2" class="mt-8 space-y-4"></div>
-			</div>
-
-			<div>
-				<h2 class="text-xl font-semibold mb-4 text-center text-white/80">Unique to First Pack</h2>
-				<input type="input" id="compared_count" disabled class="block w-full p-3 mb-4 text-sm text-white/80 border border-white/20 rounded-lg bg-white/5 backdrop-blur-md focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all" />
-				<div id="comparison" class="mt-8 space-y-4"></div>
-			</div>
-		</div>
-	</div>
-`;
-
 const state = {
 	mods1: [],
 	mods2: [],
 };
 
-// Setup uploaders and results for both modpacks
 const setupUploader = (id: string) => {
 	const jarUpload = document.getElementById(
 		`jarUpload${id}`,
@@ -129,7 +96,6 @@ const displayResults = (results: ModMetadata[], container: HTMLDivElement) => {
 setupUploader("1");
 setupUploader("2");
 
-// Add this function to compare mods
 function compareMods(mods1: ModMetadata[], mods2: ModMetadata[]) {
 	const comparisonDiv = document.getElementById("comparison") as HTMLDivElement;
 	const countInput = document.getElementById(
