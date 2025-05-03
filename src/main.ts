@@ -67,9 +67,21 @@ const displayResults = (results: ModMetadata[], container: HTMLDivElement) => {
 	for (const mod of results) {
 		const modDiv = document.createElement("div");
 		modDiv.className =
-			"card p-4 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/15 hover:shadow-white/5 transition-all";
+			"card p-4 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 shadow-lg hover:bg-white/15 hover:shadow-white/5 transition-all relative";
 
 		modDiv.innerHTML = `
+      ${
+				container.id === "comparison"
+					? `
+        <button class="absolute z-1 top-2 right-2 p-1 text-white/60 hover:text-white/90 transition-colors cursor-pointer" aria-label="Hide mod">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      `
+					: ""
+			}
       <div class="flex items-center gap-3 mb-2">
         ${mod.icon?.startsWith("data") ? `<img src="${mod.icon}" alt="${mod.name} icon" class="w-10 h-10 rounded shadow-md">` : ""}
         <div class="min-w-0">
@@ -88,6 +100,18 @@ const displayResults = (results: ModMetadata[], container: HTMLDivElement) => {
       </div>
       <p class="text-white/80">${mod.description}</p>
     `;
+
+		if (container.id === "comparison") {
+			const hideBtn = modDiv.querySelector("button");
+			hideBtn?.addEventListener("click", () => {
+				// Update unique mods count
+				const countInput = document.getElementById(
+					"compared_count",
+				) as HTMLInputElement;
+				countInput.value = `${container.children.length - 1} unique mods`;
+				modDiv.remove();
+			});
+		}
 
 		container.appendChild(modDiv);
 	}
