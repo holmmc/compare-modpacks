@@ -109,3 +109,25 @@ function compareMods(mods1: ModMetadata[], mods2: ModMetadata[]) {
 	countInput.value = `${uniqueMods.length} unique mods`;
 	displayResults(uniqueMods, comparisonDiv);
 }
+
+document.getElementById("swapMods")?.addEventListener("click", () => {
+	// Swap mod arrays
+	[state.mods1, state.mods2] = [state.mods2, state.mods1];
+
+	// Swap file input values
+	const jarUpload1 = document.getElementById("jarUpload1") as HTMLInputElement;
+	const jarUpload2 = document.getElementById("jarUpload2") as HTMLInputElement;
+	[jarUpload1.files, jarUpload2.files] = [jarUpload2.files, jarUpload1.files];
+
+	// Update displays
+	const results1 = document.getElementById("results1") as HTMLDivElement;
+	const results2 = document.getElementById("results2") as HTMLDivElement;
+
+	displayResults(state.mods1, results1);
+	displayResults(state.mods2, results2);
+
+	// Update comparison if both modpacks are loaded
+	if (state.mods1.length && state.mods2.length) {
+		compareMods(state.mods1, state.mods2);
+	}
+});

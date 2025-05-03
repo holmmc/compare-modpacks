@@ -7,8 +7,8 @@
   <meta name="description" content="Compare Minecraft modpacks to find differences and unique mods">
   <link rel="icon" type="image/svg+xml" href="/compare-modpacks/vite.svg">
   <title>Modpack Comparator</title>
-  <script type="module" crossorigin src="/compare-modpacks/assets/index-B9UseAD-.js"></script>
-  <link rel="stylesheet" crossorigin href="/compare-modpacks/assets/index-CvKShW5e.css">
+  <script type="module" crossorigin src="/compare-modpacks/assets/index-C-BIIY3s.js"></script>
+  <link rel="stylesheet" crossorigin href="/compare-modpacks/assets/index-DZgt7Qcl.css">
 <link rel="manifest" href="/compare-modpacks/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/compare-modpacks/registerSW.js"></script></head>
 
 <body>
@@ -18,7 +18,18 @@
       <div class="jumbo absolute opacity-60 -animate"></div>
     </div>
     <div
-      class="max-w-5xl w-full p-6 rounded-xl bg-white/10 backdrop-blur-xl shadow-2xl border border-white/20 transition-all">
+      class="max-w-5xl w-full p-6 rounded-xl bg-white/10 backdrop-blur-xl shadow-2xl border border-white/20 transition-all relative">
+      <button id="swapMods" aria-label="Swap modpacks" title="Swap modpacks"
+        class="absolute z-1 top-2 right-2 p-2 text-white/80 border border-white/20 rounded-lg cursor-pointer bg-white/5 backdrop-blur-md hover:bg-white/10 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all">
+        <svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="17 1 21 5 17 9"></polyline>
+          <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+          <polyline points="7 23 3 19 7 15"></polyline>
+          <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+        </svg>
+      </button>
+
       <h1 class="text-3xl font-bold mb-6 text-center text-white/90 drop-shadow-md">Modpack Comparator</h1>
 
       <div class="grid grid-cols-3 gap-4">
