@@ -1,6 +1,7 @@
 import { loadAsync } from "jszip";
 import "./style.css";
 import type { ModMetadata } from "./type";
+import DirReader from "./dir-reader";
 
 const state = {
 	mods1: [],
@@ -8,10 +9,20 @@ const state = {
 };
 
 const setupUploader = (id: string) => {
-	const jarUpload = document.getElementById(
+	const oldInput = document.getElementById(
 		`jarUpload${id}`,
 	) as HTMLInputElement;
+
+	// const jarUpload = document.getElementById(
+	// 	`jarUpload${id}`,
+	// ) as HTMLInputElement;
 	const resultsDiv = document.getElementById(`results${id}`) as HTMLDivElement;
+
+	const jarUpload = DirReader({
+		fileExtensionFilter: ".jar",
+		subfolderName: "mods",
+	});
+	oldInput.replaceWith(jarUpload);
 
 	jarUpload.addEventListener("change", async () => {
 		if (!jarUpload.files || jarUpload.files.length === 0) return;

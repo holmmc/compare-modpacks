@@ -103,19 +103,3 @@ body {
 	white-space: nowrap;
 	border-width: 0;
 }
-
-[title]:hover::after {
-	content: attr(title);
-	position: absolute;
-	bottom: 100%;
-	left: 50%;
-	transform: translateX(-50%);
-	background: rgba(0, 0, 0, 0.8);
-	color: white;
-	padding: 4px 8px;
-	border-radius: 4px;
-	font-size: 12px;
-	white-space: nowrap;
-	pointer-events: none;
-	margin-bottom: 5px;
-}
