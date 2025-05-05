@@ -8,21 +8,53 @@ const state = {
 	mods2: [],
 };
 
+const cache = new Map<string, ModMetadata | undefined>();
+
+async function processModFile(file: File): Promise<ModMetadata | undefined> {
+	if (cache.has(file.name)) return cache.get(file.name);
+	try {
+		const zipContent = await loadAsync(file);
+		const fabricJsonFile = zipContent.file("fabric.mod.json");
+		if (!fabricJsonFile) throw new Error("No fabric.mod.json found");
+		const fabricJson = await fabricJsonFile.async("text");
+		const modData = JSON.parse(fabricJson) as ModMetadata;
+
+		// Handle icon if it exists in the mod
+		if (modData.icon) {
+			const iconFile = zipContent.file(modData.icon);
+			if (iconFile) {
+				const iconData = await iconFile.async("uint8array");
+				const mimeType = modData.icon.endsWith(".png")
+					? "image/png"
+					: modData.icon.endsWith(".jpg")
+						? "image/jpeg"
+						: "image/webp";
+				const base64 = btoa(String.fromCharCode(...iconData));
+				modData.icon = `data:${mimeType};base64,${base64}`;
+			}
+		}
+		cache.set(file.name, modData);
+		return modData;
+	} catch (error) {
+		console.error(
+			`Error processing ${file.name}:`,
+			error instanceof Error ? error.message : error,
+		);
+		cache.set(file.name, undefined);
+	}
+}
+
 const setupUploader = (id: string) => {
 	const oldInput = document.getElementById(
 		`jarUpload${id}`,
 	) as HTMLInputElement;
-
-	// const jarUpload = document.getElementById(
-	// 	`jarUpload${id}`,
-	// ) as HTMLInputElement;
-	const resultsDiv = document.getElementById(`results${id}`) as HTMLDivElement;
-
 	const jarUpload = DirReader({
 		fileExtensionFilter: ".jar",
 		subfolderName: "mods",
 	});
 	oldInput.replaceWith(jarUpload);
+
+	const resultsDiv = document.getElementById(`results${id}`) as HTMLDivElement;
 
 	jarUpload.addEventListener("change", async () => {
 		if (!jarUpload.files || jarUpload.files.length === 0) return;
@@ -37,32 +69,8 @@ const setupUploader = (id: string) => {
 		for (let i = 0; i < files.length; i++) {
 			const file = files[i];
 			progress.textContent = `Processing (${i + 1}/${files.length})`;
-
-			try {
-				const zipContent = await loadAsync(file);
-				const fabricJsonFile = zipContent.file("fabric.mod.json");
-				if (!fabricJsonFile) throw new Error("No fabric.mod.json found");
-				const fabricJson = await fabricJsonFile.async("text");
-				const modData = JSON.parse(fabricJson) as ModMetadata;
-
-				// Handle icon if it exists in the mod
-				if (modData.icon) {
-					const iconFile = zipContent.file(modData.icon);
-					if (iconFile) {
-						const iconData = await iconFile.async("uint8array");
-						const mimeType = modData.icon.endsWith(".png")
-							? "image/png"
-							: modData.icon.endsWith(".jpg")
-								? "image/jpeg"
-								: "image/webp";
-						const base64 = btoa(String.fromCharCode(...iconData));
-						modData.icon = `data:${mimeType};base64,${base64}`;
-					}
-				}
-				results.push(modData);
-			} catch (error) {
-				console.error(`Error processing ${file.name}:`, error);
-			}
+			const data = await processModFile(file);
+			if (data) results.push(data);
 		}
 
 		displayResults(results, resultsDiv);
